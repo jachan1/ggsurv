@@ -62,8 +62,8 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
                 geom_text(aes(label=count_lab_tick, y=-0.08), size=3.5, hjust=4)
         }
         
-        
-        if(addNRisk) {
+        if(addNRisk) print("addNRisk functionality removed. Use addCounts instead.")
+        if(FALSE) { ## disabling addNRisk since it doesn't really work
             xTicks <- ggplot_build(pl)$panel$ranges[[1]]$x.major_source
             
             getRowsFxn <- function(x, xTicks){
@@ -135,7 +135,7 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
             stop ('There are no censored observations')
         } else(pl)
         
-        if(addNRisk) {
+        if(FALSE) { ## addNRisk functionality removed
             require(gridExtra)
             arrangeGrob(pl, blank.pic, data.table, clip = FALSE, nrow = 3,
                         ncol = 1, heights = unit(c(2, .1, .25), c("null", "null", "null")))
@@ -237,8 +237,8 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
                 geom_hline(y=0, color="#CCCCCC", linetype="dotted") +
                 geom_text(aes(x=min(dat$time)-range(dat$time)[2]*0.03, label=lablab, y=lablaby), size=3.5)
         }
-        
-        if(addNRisk) {
+        if(addNRisk) print("addNRisk functionality removed. Use addCounts instead.")
+        if(FALSE) { ## addNRisk functionality removed
             xTicks <- ggplot_build(pl)$panel$ranges[[1]]$x.major_source
             
             getRowsFxn <- function(x, xTicks){
@@ -344,7 +344,7 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
         }
         pl <- pl + theme(legend.justification=lPos, legend.position=lPos)
         
-        if(addNRisk) {
+        if(FALSE) { ## addNRisk functionality removed
             require(gridExtra)
             arrangeGrob(pl, blank.pic, data.table, clip = FALSE, nrow = 3,
                         ncol = 1, heights = unit(c(2, .1, .25), c("null", "null", "null")))
