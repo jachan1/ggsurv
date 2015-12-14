@@ -76,14 +76,10 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
             stopifnot(length(dataLabels) == 1)
             dataLabs <- ifelse(dataLabels=="", "All", dataLabels)
             data.table <- ggplot(nRiskTab,aes(x = time, y = strata, label = format(n.risk, nsmall = 0))) +
-                #, color = strata)) +
                 geom_text(data=nRiskTab, aes(x=time, y=strata, label=n.risk), size=3.5) + theme_bw() +
                 scale_y_discrete(breaks = "All",
                                  labels = dataLabs) +
-                # scale_y_discrete(#format1ter = abbreviate,
-                # breaks = 1:3,
-                # labels = ystratalabs) +
-                scale_x_continuous("Numbers at risk", limits = c(0, max(dat$time))) + # ggplot_build(pl)$panel$ranges[[1]]$x.range) +
+                scale_x_continuous("Numbers at risk", limits = c(0, max(dat$time))) +
                 theme(axis.title.x = element_text(size = 10, vjust = 1),
                       panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                       panel.border = element_blank(),axis.text.x = element_blank(),
@@ -91,7 +87,7 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
             data.table <- data.table + 
                 theme(legend.position = "none") + xlab(NULL) + ylab(NULL)
             print(tmp)
-            m <- 5 # max(nchar(unlist(strsplit(tmp, "\n"))))
+            m <- 5 
             data.table <- data.table +
                 theme(plot.margin = unit(c(-1.5, 1, 0.1, 3.5 - 0.28 * m), "lines")) # ADJUST POSITION OF TABLE FOR AT RISK
             blank.pic <- ggplot(dat, aes(time, surv)) +
@@ -100,32 +96,12 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
                       axis.title.x = element_blank(),axis.title.y = element_blank(),
                       axis.ticks = element_blank(),
                       panel.grid.major = element_blank(),panel.border = element_blank())
-            
-            #       for(strata in names(sf130$strata)){
-            #         nrisk <- sf130$n.risk[names(sf130$strata) == strata]
-            #         nrisktime <- sf130$time[names(sf130$strata) == strata]
-            #         print(nrisk[findInterval(xTicks, nrisktime)])
-            #         print(345)
-            #       }
-            #       sf130$n.risk[findInterval(xTicks, sf130$time)]
-            
-            #       pl <- pl + geom_text(x=xTicks[1], y=-0.05, label=xLab[1], size=rel(3), fontface=1)
-            #       
-            #       pl + annotation_custom(
-            #         grob = textGrob(label = "here", hjust = 0, gp = gpar(cex = 1.5)),
-            #         ymax = -.05,      # Vertical position of the textGrob
-            #         xmax = -2000)
-            
-            
         }
         
         
         pl <- if(CI == T | CI == 'def') {
             pl + geom_rect(aes(xmin = time, xmax = timeMax, ymin = low, ymax = up),
                            fill=col, alpha = 0.1)
-            # geom_ribbon(aes(ymin=low, ymax=up), fill=col, alpha=0.2)
-            #         geom_step(aes(y = up), color = col, lty = lty.ci) +
-            #         geom_step(aes(y = low), color = col, lty = lty.ci)
         } else (pl)
         
         pl <- if(plot.cens == T & length(dat.cens) > 0){
@@ -254,14 +230,10 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
                 rev(dataLabels)
             }
             data.table <- ggplot(dat,aes(x = time, y = strata, label = format(atRisk, nsmall = 0))) +
-                #, color = strata)) +
                 geom_text(data=nRiskTab, aes(x=time, y=strata, label=n.risk), size=3.5) + theme_bw() +
                 scale_y_discrete(breaks = names(s$strata),
                                  labels = dataLabs) +
-                # scale_y_discrete(#format1ter = abbreviate,
-                # breaks = 1:3,
-                # labels = ystratalabs) +
-                scale_x_continuous("Numbers at risk", limits = c(0, max(dat$time))) + # ggplot_build(pl)$panel$ranges[[1]]$x.range) +
+                scale_x_continuous("Numbers at risk", limits = c(0, max(dat$time))) + 
                 theme(axis.title.x = element_text(size = 10, vjust = 1),
                       panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
                       panel.border = element_blank(),axis.text.x = element_blank(),
@@ -278,23 +250,6 @@ ggsurv <- function(s, CI = 'def', plot.cens = T, surv.col = 'gg.def',
                       axis.title.x = element_blank(),axis.title.y = element_blank(),
                       axis.ticks = element_blank(),
                       panel.grid.major = element_blank(),panel.border = element_blank())
-            
-            #       for(strata in names(sf130$strata)){
-            #         nrisk <- sf130$n.risk[names(sf130$strata) == strata]
-            #         nrisktime <- sf130$time[names(sf130$strata) == strata]
-            #         print(nrisk[findInterval(xTicks, nrisktime)])
-            #         print(345)
-            #       }
-            #       sf130$n.risk[findInterval(xTicks, sf130$time)]
-            
-            #       pl <- pl + geom_text(x=xTicks[1], y=-0.05, label=xLab[1], size=rel(3), fontface=1)
-            #       
-            #       pl + annotation_custom(
-            #         grob = textGrob(label = "here", hjust = 0, gp = gpar(cex = 1.5)),
-            #         ymax = -.05,      # Vertical position of the textGrob
-            #         xmax = -2000)
-            
-            
         }
         
         
