@@ -1,6 +1,6 @@
 ## Synopsis
 
-ggplot based function to draw Kaplan-Meiers curves. 
+ggplot based function to draw Kaplan-Meiers curves. Based on http://www.inside-r.org/packages/cran/GGally/docs/ggsurv with different confidence bands and plottable SAS-esque survival counts.
 
 ## Code Example
 
