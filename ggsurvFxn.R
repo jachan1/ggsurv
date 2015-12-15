@@ -47,7 +47,7 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         
         dat$count_lab <- dat$atRisk
         dat$count_lab[!dat$time %in% c(min(dat$time), count_cuts$time)] <- NA
-        dat <- bind_rows(dat, data_frame(time=min(dat$time), count_lab_tick="N:")) %>% 
+        dat <- dat %>% 
             left_join(data_frame(time = c(min(dat$time), count_cuts$time), 
                                  lab_time = with(dat, seq(min(time), max(time), length.out = 6))), by="time")
         
@@ -65,8 +65,7 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         ## add counts below graph
         if(addCounts) {
             pl <- pl + geom_text(aes(x=lab_time, label=count_lab, y=-0.08), size=3.5) +
-                geom_hline(y=min(dat$time), color="#CCCCCC", linetype="dotted") +
-                geom_text(aes(label=count_lab_tick, y=-0.08), size=3.5, hjust=4)
+                geom_hline(y=min(dat$time), color="#CCCCCC", linetype="dotted")
         }
         
         if(addNRisk) message("addNRisk functionality removed. Use addCounts instead.")
