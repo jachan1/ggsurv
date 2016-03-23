@@ -3,7 +3,7 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                    cens.shape = 3, back.white = F, xlab = 'Time',
                    ylab = '', main = '', cumProb = F, yTicks=5, 
                    addNRisk=F, dataLabels="", addCounts=F, bw=F,
-                   legend_title){
+                   legend_title, legend_pos){
     
     require(ggplot2)
     require(dplyr)
@@ -89,7 +89,7 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         
     }
     
-    ggsurv_m <- function(s, yAxisScale, legend_title) {
+    ggsurv_m <- function(s, yAxisScale, legend_title, legend_pos) {
         ## given default informative y axis label
         if(ylab == ""){
             ylab = ifelse(cumProb, "Cumulative Probability", "Survival")
@@ -100,6 +100,9 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         
         groups <- factor(unlist(strsplit(names
                                          (s$strata), '='))[seq(2, 2*strata, by = 2)])
+#         groups_labs <- sapply(levels(groups), expression)
+#         names(groups_labs) <- levels(groups)
+
         if(missing(legend_title)) gr.name <- unlist(strsplit(names(s$strata), '='))[1]
         else gr.name = legend_title
         gr.df <- vector('list', strata)
@@ -197,18 +200,23 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         ## colors defined
         pl <- if(surv.col[1] != 'gg.def'){
             pl + col
-        } else {pl + scale_colour_discrete(name = gr.name)}
+        } else {
+          pl + scale_colour_discrete(name = gr.name)
+        }
         
         pl <- if(length(lty.est) == 1){
-            pl + scale_linetype_manual(name = gr.name, values = rep(lty.est, strata))
-        } else {pl + scale_linetype_manual(name = gr.name, values = lty.est)}
+            pl + scale_linetype_manual(name = gr.name,
+                                       values = rep(lty.est, strata))
+        } else {pl + scale_linetype_manual(name = gr.name, 
+                                           values = lty.est)}
         
         ## add in confidence intervals
         if(CI){
             col <- if(length(surv.col) == 1){
                 scale_fill_discrete(name = gr.name)
             } else{
-                scale_fill_manual(name = gr.name, values = surv.col)
+                scale_fill_manual(name = gr.name, 
+                                  values = surv.col)
             }
             pl <- pl + geom_rect(aes(xmin = time, xmax = timeMax, ymin = low, ymax = up, fill = group),
                            alpha = 0.1) + col
@@ -221,12 +229,16 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         } else if(plot.cens == T & all(dat$cens == 0)) {
             stop ('There are no censored observations')
         }
-        
-        lPos <- if(cumProb) {
+        lPos <- if(missing(legend_pos)){
+          if(cumProb) {
             c(0,1)
-        } else {
+          } else {
             c(1,1)
+          }
+        } else {
+          legend_pos
         }
+        
         pl + theme(legend.justification=lPos, legend.position=lPos)
     }
     
@@ -245,6 +257,6 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         nticks <- seq(0,1, length.out=yTicks)
         nlabs <- paste0(100*nticks, "%")
         yAxisScale <- scale_y_continuous(limits=c(ifelse(addCounts, -0.125 - 0.065*(strata-1), -0.025),1.1), breaks=nticks, labels = nlabs)
-        ggsurv_m(s, yAxisScale, legend_title)
+        ggsurv_m(s, yAxisScale, legend_title, legend_pos)
     }
 }
