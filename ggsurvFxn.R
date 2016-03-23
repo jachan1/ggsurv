@@ -1,7 +1,9 @@
 ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                    cens.col = 'red', lty.est = 1, lty.ci = 2,
                    cens.shape = 3, back.white = F, xlab = 'Time',
-                   ylab = '', main = '', cumProb = F, yTicks=5, addNRisk=F, dataLabels="", addCounts=F, bw=F){
+                   ylab = '', main = '', cumProb = F, yTicks=5, 
+                   addNRisk=F, dataLabels="", addCounts=F, bw=F,
+                   legend_title){
     
     require(ggplot2)
     require(dplyr)
@@ -10,7 +12,7 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     stopifnot(length(surv.col) == 1 | length(surv.col) == strata)
     stopifnot(length(lty.est) == 1 | length(lty.est) == strata)
     if(class(s) != "survfit") stop("First parameter needs to be a survfit object")
-    
+  
     ## need a separate construction for single strata and multi-strata
     ggsurv_s <- function(s, yAxisScale){
         ## given default informative y axis label
@@ -87,7 +89,7 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         
     }
     
-    ggsurv_m <- function(s, yAxisScale) {
+    ggsurv_m <- function(s, yAxisScale, legend_title) {
         ## given default informative y axis label
         if(ylab == ""){
             ylab = ifelse(cumProb, "Cumulative Probability", "Survival")
@@ -98,7 +100,8 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         
         groups <- factor(unlist(strsplit(names
                                          (s$strata), '='))[seq(2, 2*strata, by = 2)])
-        gr.name <-  unlist(strsplit(names(s$strata), '='))[1]
+        if(missing(legend_title)) gr.name <- unlist(strsplit(names(s$strata), '='))[1]
+        else gr.name = legend_title
         gr.df <- vector('list', strata)
         ind <- vector('list', strata)
         n.ind <- c(0,n); n.ind <- cumsum(n.ind)
@@ -242,6 +245,6 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         nticks <- seq(0,1, length.out=yTicks)
         nlabs <- paste0(100*nticks, "%")
         yAxisScale <- scale_y_continuous(limits=c(ifelse(addCounts, -0.125 - 0.065*(strata-1), -0.025),1.1), breaks=nticks, labels = nlabs)
-        ggsurv_m(s, yAxisScale)
+        ggsurv_m(s, yAxisScale, legend_title)
     }
 }
