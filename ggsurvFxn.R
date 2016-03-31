@@ -43,15 +43,17 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         col <- ifelse(surv.col == 'gg.def', 'black', surv.col)
         
         ## extra rows need to be created in order for survival numbers to be added
-        count_cuts <- dat %>% mutate(time_grp = cut(time, seq(min(time), max(time), length.out = 6))) %>% 
-            filter(!is.na(time_grp)) %>% arrange(time) %>%
-            group_by(time_grp) %>% summarise(time=max(time))
+        ncount_labs <- 6
+        time_seq <- with(dat, seq(min(time), max(time), length.out = ncount_labs))
+        
+        count_cuts <- dat %>% mutate(time_grp = cut(time, time_seq)) %>% 
+            group_by(time_grp) %>% summarise(time=max(time)) %>% right_join(data_frame(time_grp=levels(.$time_grp)), by="time_grp")
         
         dat$count_lab <- dat$atRisk
         dat$count_lab[!dat$time %in% c(min(dat$time), count_cuts$time)] <- NA
         dat <- dat %>% 
             left_join(data_frame(time = c(min(dat$time), count_cuts$time), 
-                                 lab_time = with(dat, seq(min(time), max(time), length.out = 6))), by="time")
+                                 lab_time = time_seq), by="time")
         
         ## initial ggplot object created
         pl <- ggplot(dat, aes(x = time, y = surv)) +
@@ -67,7 +69,7 @@ ggsurv <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         ## add counts below graph
         if(addCounts) {
             pl <- pl + geom_text(aes(x=lab_time, label=count_lab, y=-0.08), size=3.5) +
-                geom_hline(y=min(dat$time), color="#CCCCCC", linetype="dotted")
+                geom_hline(yintercept=min(dat$time), color="#BBBBBB", linetype="dashed")
         }
         
         if(addNRisk) message("addNRisk functionality removed. Use addCounts instead.")
