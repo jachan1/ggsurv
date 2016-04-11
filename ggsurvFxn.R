@@ -4,7 +4,7 @@ ggsurv <- function(s, ...){
 
 ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                    cens.col = 'red', lty.est = 1, lty.ci = 2,
-                   cens.shape = 3, back.white = F, xlab = 'Time',
+                   cens.shape = 3, xlab = 'Time',
                    ylab = '', main = '', cumProb = F, yTicks=5, 
                    addNRisk=F, dataLabels="", addCounts=F, bw=F,
                    legend_title, legend_pos){
@@ -267,7 +267,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
 
 ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                            cens.col = 'red', lty.est = 1, lty.ci = 2,
-                           cens.shape = 3, back.white = F, xlab = 'Time',
+                           cens.shape = 3, xlab = 'Time',
                            ylab = '', main = '', cumProb = F, yTicks=5, 
                            addNRisk=F, dataLabels="", addCounts=F, bw=F,
                            legend_title, legend_pos, strata_names){
