@@ -96,53 +96,59 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     
     ggsurv_m <- function(s, yAxisScale, legend_title, legend_pos) {
         ## given default informative y axis label
+      
         if(ylab == ""){
             ylab = ifelse(cumProb, "Cumulative Probability", "Survival")
         }
         
         ## set up survival data in ggplot form
-        n <- s$strata
         
         groups <- factor(unlist(strsplit(names
                                          (s$strata), '='))[seq(2, 2*strata, by = 2)])
 #         groups_labs <- sapply(levels(groups), expression)
 #         names(groups_labs) <- levels(groups)
 
-        if(missing(legend_title)) gr.name <- unlist(strsplit(names(s$strata), '='))[1]
-        else gr.name = legend_title
+        if(missing(legend_title)){
+          gr.name <- unlist(strsplit(names(s$strata), '='))[1]
+        }else{
+          gr.name = legend_title
+        }
+        
         gr.df <- vector('list', strata)
         ind <- vector('list', strata)
-        n.ind <- c(0,n); n.ind <- cumsum(n.ind)
-        for(i in 1:strata) ind[[i]] <- (n.ind[i]+1):n.ind[i+1]
+        n_ind <- c(0,s$strata); n_ind <- cumsum(n_ind)
+        
         ## need to build data separately for strata
         for(i in 1:strata){
-            if (cumProb) {
-                survCol <- 1 - c(1, s$surv[ ind[[i]] ])
-                lowCol <- 1 - c(1, s$lower[ ind[[i]] ])
-                highCol <- 1 - c(1, s$upper[ ind[[i]] ])
-            } else {
-                survCol <- c(1, s$surv[ ind[[i]] ])
-                lowCol <- c(1, s$lower[ ind[[i]] ])
-                highCol <- c(1, s$upper[ ind[[i]] ])
-            }
-            tmp <-data_frame(
-                time = c(0, s$time[ ind[[i]] ]),
-                surv = survCol,
-                up = highCol,
-                low = lowCol,
-                cens = c(0, s$n.censor[ ind[[i]] ]),
-                group = rep(groups[i], n[i] + 1),
-                groupFull = rep(names(s$strata)[i], n[i] + 1),
-                atRisk = c(s$n.risk[1], s$n.risk[ ind[[i]] ]))
-            tmp$timeMax <- c(tmp$time[-1], tmp$time[length(tmp$time)])
-            gr.df[[i]] <- tmp
+          ind[[i]] <- (n_ind[i]+1):n_ind[i+1]
+          
+          if (cumProb) {
+            survCol <- 1 - c(1, s$surv[ ind[[i]] ])
+            lowCol <- 1 - c(1, s$lower[ ind[[i]] ])
+            highCol <- 1 - c(1, s$upper[ ind[[i]] ])
+          } else {
+            survCol <- c(1, s$surv[ ind[[i]] ])
+            lowCol <- c(1, s$lower[ ind[[i]] ])
+            highCol <- c(1, s$upper[ ind[[i]] ])
+          }
+          tmp <-data_frame(
+            time = c(0, s$time[ ind[[i]] ]),
+            surv = survCol,
+            up = highCol,
+            low = lowCol,
+            cens = c(0, s$n.censor[ ind[[i]] ]),
+            group = rep(groups[i], s$strata[i] + 1),
+            groupFull = rep(names(s$strata)[i], s$strata[i] + 1),
+            atRisk = c(s$n.risk[1], s$n.risk[ ind[[i]] ]))
+          tmp$timeMax <- c(tmp$time[-1], tmp$time[length(tmp$time)])
+          gr.df[[i]] <- tmp
         }
         ## helper functions
         makecnts <- function(x){
-            x$count_lab[nrow(x)] <- x$atRisk[nrow(x)]
-            x$count_lab_x[nrow(x)] <- as.numeric(as.character(x$time_max[nrow(x)]))
-            x$count_lab_y <- -0.08 - 0.065*(as.numeric(x$group) - 1)
-            x
+          x$count_lab[nrow(x)] <- x$atRisk[nrow(x)]
+          x$count_lab_x[nrow(x)] <- as.numeric(as.character(x$time_max[nrow(x)]))
+          x$count_lab_y <- -0.08 - 0.065*(as.numeric(x$group) - 1)
+          x
         }
         
         makezeros <- function(x) {
@@ -166,7 +172,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         ## dat needs to have addcounts info added before ggplot first called
         if(addCounts) {
             dat$group <- factor(sprintf("%g: %s", as.numeric(dat$group), dat$group))
-            tmp <- as.data.frame(with(dat %>% filter(time > 0), table(group, time_grp))) %>% filter(Freq == 0) 
+            tmp <- as.data.frame(with(dat %>% filter(time > 0), table(group, time_grp))) %>% filter(Freq > 0) 
             allrows <- NULL
             levels(tmp[['time_grp']]) <- time_grps[-1]
             for(i in 1:nrow(tmp)){
@@ -185,8 +191,8 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
             theme(axis.line = element_line(colour = "black"),
                   panel.grid.major = element_blank(),
                   panel.grid.minor = element_blank(),
-                  panel.border = element_blank(),
-                  panel.background = element_blank(), panel.border=element_rect(fill=NA))
+                  panel.border=element_rect(fill=NA),
+                  panel.background = element_blank())
         
         if(bw){
             pl <- pl + geom_step(aes(lty = group))
@@ -196,9 +202,9 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         
         ## counts added
         if(addCounts) {
-            pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=3.5) +
-                geom_hline(y=0, color="#CCCCCC", linetype="dotted") +
-                geom_text(aes(x=min(dat$time)-range(dat$time)[2]*0.03, label=lablab, y=lablaby), size=3.5)
+            pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=3) +
+                geom_hline(yintercept=0, color="#CCCCCC", linetype="dotted") +
+                geom_text(aes(x=min(time)-range(time)[2]*0.03, label=lablab, y=lablaby), size=3)
         }
         
         ## colors defined
@@ -281,7 +287,7 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
   if(!missing(strata_names)) {
     stopifnot(length(strata_names) == strata)
   } else {
-    strata_names <- colnames(s$surv)
+    strata_names <- names(s$strata)
   }
   # if(class(s) != "survfit") stop("First parameter needs to be a survfit object")
   ## need a separate construction for single strata and multi-strata
@@ -334,8 +340,8 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
       theme(axis.line = element_line(colour = "black"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            panel.border = element_blank(),
-            panel.background = element_blank(), panel.border=element_rect(fill=NA))
+            panel.background = element_blank(), 
+            panel.border=element_rect(fill=NA))
     
     ## add counts below graph
     if(addCounts) {
@@ -369,15 +375,13 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     }
     
     ## set up survival data in ggplot form
-    n <- nrow(s$surv)
     
     #         groups_labs <- sapply(levels(groups), expression)
     #         names(groups_labs) <- levels(groups)
     
     gr.name <- if(missing(legend_title)) {
       ""
-    }
-    else {
+    } else {
       gr.name = legend_title
     }
     
@@ -462,9 +466,9 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     
     ## counts added
     if(addCounts) {
-      pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=3.5) +
-        geom_hline(y=0, color="#CCCCCC", linetype="dotted") +
-        geom_text(aes(x=min(dat$time)-range(dat$time)[2]*0.03, label=lablab, y=lablaby), size=3.5)
+      pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=3) +
+        geom_hline(yintercept=0, color="#CCCCCC", linetype="dotted") +
+        geom_text(aes(x=min(dat$time)-range(dat$time)[2]*0.03, label=lablab, y=lablaby), size=3)
     }
     
     ## colors defined
