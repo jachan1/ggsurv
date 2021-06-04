@@ -57,7 +57,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         dat <- dat %>% 
             left_join(data_frame(time = c(min(dat$time), count_cuts$time), 
                                  lab_time = time_seq), by="time")
-        
+       
         ## initial ggplot object created
         pl <- ggplot(dat, aes(x = time, y = surv)) +
             xlab(xlab) + ylab(ylab) + ggtitle(main) +
@@ -66,8 +66,8 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
             theme(axis.line = element_line(colour = "black"),
                   panel.grid.major = element_blank(),
                   panel.grid.minor = element_blank(),
-                  panel.border = element_blank(),
-                  panel.background = element_blank(), panel.border=element_rect(fill=NA))
+                  panel.border=element_rect(fill=NA),
+                  panel.background = element_blank())
         
         ## add counts below graph
         if(addCounts) {
@@ -455,8 +455,8 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
       theme(axis.line = element_line(colour = "black"),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank(),
-            panel.border = element_blank(),
-            panel.background = element_blank(), panel.border=element_rect(fill=NA))
+            panel.border=element_rect(fill=NA),
+            panel.background = element_blank())
     
     if(bw){
       pl <- pl + geom_step(aes(lty = group))
